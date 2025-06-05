@@ -89,9 +89,9 @@ except NameError:
 # Choose which algorithms to test by commenting/uncommenting lines
 # Available algorithms: "als", "svd", "sar", "ncf", "bpr", "lightgcn"
 algorithms = [
-    "als",
-    "svd",
-    "sar",
+    # "als",
+    # "svd",
+    # "sar",
     "ncf",
     "bpr",
     "lightgcn",
@@ -102,7 +102,7 @@ algorithms = [
 # ========================================
 
 # Fixed to use only 100k dataset
-data_sizes = ["20m"]
+data_sizes = ["1m"]
 
 # Environment mapping
 environments = {
@@ -151,7 +151,7 @@ sar_params = {
 
 svd_params = {
     "n_factors": 150,
-    "n_epochs": 10,
+    "n_epochs": 30,
     "lr_all": 0.005,
     "reg_all": 0.02,
     "random_state": SEED,
@@ -162,8 +162,8 @@ ncf_params = {
     "model_type": "NeuMF",
     "n_factors": 4,
     "layer_sizes": [16, 8, 4],
-    "n_epochs": 10,
-    "batch_size": 1024,
+    "n_epochs": 20,
+    "batch_size": 256,
     "learning_rate": 1e-3,
     "verbose": 10
 }
@@ -180,10 +180,10 @@ bpr_params = {
 lightgcn_param = {
     "model_type": "lightgcn",
     "n_layers": 3,
-    "batch_size": 1024,
+    "batch_size": 256,
     "embed_size": 64,
     "decay": 0.0001,
-    "epochs": 10,
+    "epochs": 20,
     "learning_rate": 0.005,
     "eval_epoch": 5,
     "top_k": DEFAULT_K,
