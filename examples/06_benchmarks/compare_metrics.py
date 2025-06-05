@@ -9,7 +9,7 @@ import seaborn as sns
 # Radar chart settings (Label dictionaries)
 ranking_dimensions_dict = {
     'MAP': 'MAP',
-    'nDCG@10': 'nDCG@10',
+    'nDCG@10': 'NDCG@10',
     'Precision@10': 'Precision@10',
     'Recall@10': 'Recall@10',
 }
@@ -96,19 +96,18 @@ for algo in algos:
 if len(ranking_algo_data) == 0 and len(rating_algo_data) == 0:
     print("No data available for any plots. Figure not generated.")
 else:
-    # Define a visually distinct color palette (blue/grey inspired by test.py)
+    # Set algorithm order: sar, svd, als, bpr, ncf, lightgcn
+    all_algos = ['SAR', 'SVD', 'ALS', 'BPR', 'NCF', 'LIGHTGCN']
+    # Set color order: very light blue, light grey, light blue, grey, blue, gold (light to dark, gold for lightgcn)
     fancy_colors = [
-        '#E8F0FE',  # very light blue
-        '#9E9E9E',  # grey
-        '#8AB4F8',  # light blue
-        '#C0C0C0',  # light grey
-        '#FAC858',  # gold 
-        '#4285F4',  # blue
+        '#E8F0FE',  # very light blue (SAR)
+        '#C0C0C0',  # light grey (SVD)
+        '#8AB4F8',  # light blue (ALS)
+        '#9E9E9E',  # grey (BPR)
+        '#4285F4',  # blue (NCF)
+        '#FAC858',  # gold (LIGHTGCN)
     ]
-    all_algos = sorted(set(list(ranking_algo_data.keys()) +
-                       list([k for k in rating_algo_data.keys()])))
-    color_dict = {algo: fancy_colors[i % len(
-        fancy_colors)] for i, algo in enumerate(all_algos)}
+    color_dict = {algo: fancy_colors[i] for i, algo in enumerate(all_algos)}
 
     fig, axs = plt.subplots(2, 1, figsize=(14, 10))
 
