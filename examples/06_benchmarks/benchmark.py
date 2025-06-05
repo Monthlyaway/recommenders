@@ -89,12 +89,12 @@ except NameError:
 # Choose which algorithms to test by commenting/uncommenting lines
 # Available algorithms: "als", "svd", "sar", "ncf", "bpr", "lightgcn"
 algorithms = [
-    # "als",
-    # "svd",
-    # "sar",
-    # "ncf",
-    # "bpr",
-    # "lightgcn",
+    "als",
+    "svd",
+    "sar",
+    "ncf",
+    "bpr",
+    "lightgcn",
 ]
 
 # ========================================
@@ -102,7 +102,7 @@ algorithms = [
 # ========================================
 
 # Fixed to use only 100k dataset
-data_sizes = ["100k"]
+data_sizes = ["20m"]
 
 # Environment mapping
 environments = {
@@ -151,7 +151,7 @@ sar_params = {
 
 svd_params = {
     "n_factors": 150,
-    "n_epochs": 15,
+    "n_epochs": 10,
     "lr_all": 0.005,
     "reg_all": 0.02,
     "random_state": SEED,
@@ -162,7 +162,7 @@ ncf_params = {
     "model_type": "NeuMF",
     "n_factors": 4,
     "layer_sizes": [16, 8, 4],
-    "n_epochs": 15,
+    "n_epochs": 10,
     "batch_size": 1024,
     "learning_rate": 1e-3,
     "verbose": 10
@@ -183,7 +183,7 @@ lightgcn_param = {
     "batch_size": 1024,
     "embed_size": 64,
     "decay": 0.0001,
-    "epochs": 20,
+    "epochs": 10,
     "learning_rate": 0.005,
     "eval_epoch": 5,
     "top_k": DEFAULT_K,
@@ -280,11 +280,12 @@ def main():
 
     # Start timing
     start_time = time.time()
+    run_timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
 
     # Initialize results dataframe
     cols = ["Data", "Algo", "K", "Train time (s)", "Predicting time (s)",
             "RMSE", "MAE", "R2", "Explained Variance", "Recommending time (s)",
-            "MAP", "nDCG@k", "Precision@k", "Recall@k"]
+            "MAP", "nDCG@k", "Precision@k", "Recall@k", "Run Timestamp"]
     df_results = pd.DataFrame(columns=cols)
 
     for data_size in data_sizes:
@@ -352,7 +353,18 @@ def main():
             # Record results
             summary = generate_summary(data_size, algo, DEFAULT_K, time_train,
                                        time_rating, ratings, time_ranking, rankings)
+            summary["Run Timestamp"] = run_timestamp
             df_results.loc[df_results.shape[0] + 1] = summary
+
+            # Save results for this algorithm and dataset
+            RESULT_DIR = os.path.join(os.path.dirname(__file__), "results")
+            os.makedirs(RESULT_DIR, exist_ok=True)
+            algo_file = os.path.join(RESULT_DIR, f"{algo}_{data_size}.csv")
+            # Append to file if exists, else write header
+            df_to_save = pd.DataFrame([summary])
+            write_header = not os.path.exists(algo_file)
+            df_to_save.to_csv(algo_file, mode='a',
+                              header=write_header, index=False)
 
     print("\nComputation finished")
 
@@ -361,16 +373,6 @@ def main():
     print("BENCHMARK RESULTS")
     print("="*80)
     print(df_results.to_string())
-
-    # Define the results directory
-    RESULT_DIR = os.path.join(os.path.dirname(__file__), "results")
-    os.makedirs(RESULT_DIR, exist_ok=True)
-
-    # Save results to CSV
-    output_file = os.path.join(
-        RESULT_DIR, f"movielens_100k_benchmark_results_{time.strftime('%Y%m%d_%H%M%S')}.csv")
-    df_results.to_csv(output_file, index=False)
-    print(f"\nResults saved to: {output_file}")
 
     # Total time
     total_time = time.time() - start_time
